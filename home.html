@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title> Harini's Moon Phase Calculator</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-image:url("hvmoon.jpg") ;
+        
+            background-position: center;
+            background-repeat: no-repeat;
+            color: #a1d8e2;
+            text-align: center;
+            padding: 50px 20px;
+            margin: 0;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            color: #ffeaa7;
+        }
+
+        .container {
+            background: #2d3436;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            max-width: 400px;
+            margin: auto;
+        }
+
+        input[type="date"] {
+            padding: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            outline: none;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #0984e3;
+            border: none;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #74b9ff;
+        }
+
+        .result {
+            margin-top: 20px;
+            font-size: 1.4em;
+        }
+
+        .moon {
+            font-size: 60px;
+            margin-top: 20px;
+        }
+
+        .debug {
+            margin-top: 10px;
+            font-size: 0.8em;
+            color: #ddd;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Harini's Moon Phase Calculator</h1>
+    <div class="container">
+        <input type="date" id="dateInput" value="2024-01-01">
+        <br>
+        <button id="calculateBtn">Check Moon Phase</button>
+        <div class="result" id="result">Click the button to see the moon phase!</div>
+        <div class="moon" id="moonEmoji"></div>
+        <div class="debug" id="debug"></div>
+    </div>
+
+    <script>
+        // Simple and reliable moon phase calculation
+        function getMoonPhase(date) {
+            // Known new moon date (January 11, 2024)
+            const knownNewMoon = new Date(2024, 0, 11);
+            const lunarCycle = 29.53058867; // days
+            
+            // Calculate days since known new moon
+            const timeDiff = date.getTime() - knownNewMoon.getTime();
+            const daysDiff = timeDiff / (1000 * 3600 * 24);
+            
+            // Calculate phase (0-1, where 0 is new moon)
+            let phase = (daysDiff % lunarCycle) / lunarCycle;
+            if (phase < 0) phase += 1;
+            
+            return phase;
+        }
+
+        function calculateMoonPhase() {
+            try {
+                console.log("Button clicked!");
+                
+                const dateInput = document.getElementById("dateInput");
+                const resultDiv = document.getElementById("result");
+                const moonDiv = document.getElementById("moonEmoji");
+                const debugDiv = document.getElementById("debug");
+                
+                console.log("Date input value:", dateInput.value);
+                
+                if (!dateInput.value) {
+                    resultDiv.innerText = "Please select a date first!";
+                    debugDiv.innerText = "No date selected";
+                    return;
+                }
+
+                const inputDate = new Date(dateInput.value + "T00:00:00");
+                console.log("Parsed date:", inputDate);
+                
+                if (isNaN(inputDate.getTime())) {
+                    resultDiv.innerText = "Please select a valid date.";
+                    debugDiv.innerText = "Invalid date format";
+                    return;
+                }
+
+                const phase = getMoonPhase(inputDate);
+                console.log("Calculated phase:", phase);
+
+                const phases = [
+                    "New Moon 🌑",
+                    "Waxing Crescent 🌒",
+                    "First Quarter 🌓",
+                    "Waxing Gibbous 🌔",
+                    "Full Moon 🌕",
+                    "Waning Gibbous 🌖",
+                    "Last Quarter 🌗",
+                    "Waning Crescent 🌘"
+                ];
+
+                // Convert phase (0-1) to phase index (0-7)
+                const phaseIndex = Math.floor(phase * 8);
+                const adjustedIndex = phaseIndex >= 8 ? 0 : phaseIndex;
+
+                const result = "Moon Phase: " + phases[adjustedIndex];
+                const moonEmoji = phases[adjustedIndex].split(" ")[1] || "";
+                
+                console.log("Result:", result);
+                console.log("Moon emoji:", moonEmoji);
+                
+                resultDiv.innerText = result;
+                moonDiv.innerText = moonEmoji;
+                debugDiv.innerText = `Phase: ${phase.toFixed(3)} (Index: ${adjustedIndex})`;
+                
+            } catch (error) {
+                console.error("Error:", error);
+                document.getElementById("result").innerText = "Error calculating moon phase. Please try again.";
+                document.getElementById("debug").innerText = "Error: " + error.message;
+            }
+        }
+
+        // Add event listeners when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log("Page loaded, setting up event listeners...");
+            
+            // Button click event
+            const button = document.getElementById("calculateBtn");
+            button.addEventListener("click", calculateMoonPhase);
+            
+            // Enter key event
+            const dateInput = document.getElementById("dateInput");
+            dateInput.addEventListener("keypress", function(event) {
+                if (event.key === "Enter") {
+                    calculateMoonPhase();
+                }
+            });
+            
+            console.log("Event listeners set up successfully!");
+        });
+
+        console.log("Moon Phase Calculator script loaded!");
+    </script>
+
+</body>
+</html>
